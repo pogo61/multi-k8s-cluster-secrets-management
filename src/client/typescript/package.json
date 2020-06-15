@@ -1,0 +1,23 @@
+{
+  "name": "config-factory",
+  "version": "1.0.0",
+  "description": "Class for retrieving Vault secrets and config vars",
+  "private": true,
+  "main": "./dist/ConfigFactory.js",
+  "scripts": {
+    "start": "node ./dist/VaultTest.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@kubernetes/client-node": "^0.11.1",
+    "js-base64": "^2.5.1",
+    "lodash": "^4.17.15",
+    "node-vault": "^0.9.13"
+  },
+  "devDependencies": {
+    "@types/node": "^13.1.8",
+    "typescript": "^3.7.5"
+  }
+}

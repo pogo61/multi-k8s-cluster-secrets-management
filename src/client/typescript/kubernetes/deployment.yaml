@@ -1,0 +1,24 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cf-test
+  namespace: default
+  labels:
+    app: cf-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cf-test
+  template:
+    metadata:
+      labels:
+        app: cf-test
+    spec:
+      serviceAccountName: vault-acl
+      securityContext:
+      containers:
+        - name: app
+          image: paulpog/config_factory_js:latest
+          imagePullPolicy: Always

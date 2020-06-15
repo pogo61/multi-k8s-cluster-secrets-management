@@ -1,0 +1,100 @@
+# @format
+
+injector:
+  # True if you want to enable vault agent injection.
+  enabled: false
+
+server:
+  # Resource requests, limits, etc. for the server cluster placement. This
+  # should map directly to the value of the resources field for a PodSpec.
+  # By default no direct resource request is made.
+
+  resources:
+    requests:
+      memory: 500Mi
+      cpu: 250m
+    limits:
+      memory: 500Mi
+      cpu: 250m
+
+  # Ingress allows ingress services to be created to allow external access
+  # from Kubernetes to access Vault pods.
+  ingress:
+    enabled: false
+
+  # Used to enable a livenessProbe for the pods
+  livenessProbe:
+    enabled: true
+    path: "/v1/sys/health?standbyok=true&uninitcode=200&sealedcode=200"
+    initialDelaySeconds: 60
+
+  # Used to set the sleep time during the preStop step
+  preStopSleepSeconds: 5
+
+  # extraEnvironmentVars is a list of extra enviroment variables to set with the stateful set. These could be
+  # used to include variables required for auto-unseal.
+  extraEnvironmentVars:
+    GOOGLE_REGION: "{{ .Env.REGION }}"
+    GOOGLE_PROJECT: "{{ .Env.PROJECT }}"
+    GOOGLE_APPLICATION_CREDENTIALS: "/vault/userconfig/vault-unseal-credentials/credentials.json"
+
+  extraVolumes:
+    - type: "secret"
+      name: "vault-unseal-credentials"
+
+  # Affinity Settings
+  # Commenting out or setting as empty the affinity variable, will allow
+  # deployment to single node services such as Minikube
+  affinity: |
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-type
+            operator: In
+            values:
+            - vault
+
+  # Toleration Settings for server pods
+  # This should be a multi-line string matching the Toleration array
+  # in a PodSpec.
+  tolerations: |
+    - effect: NoSchedule
+      key: group
+      operator: Equal
+      value: vault
+
+  # Extra labels to attach to the server pods
+  # This should be a multi-line string mapping directly to the a map of
+  # the labels to apply to the server pods
+  extraLabels: { app: vault }
+
+  # Run Vault in "standalone" mode. This is the default mode that will deploy if
+  # no arguments are given to helm. This requires a PVC for data storage to use
+  # the "file" backend.  This mode is not highly available and should not be scaled
+  # past a single replica.
+  standalone:
+    enabled: false
+
+  # Run Vault in "HA" mode. There are no storage requirements unless audit log
+  # persistence is required.  In HA mode Vault will configure itself to use Consul
+  # for its storage backend.  The default configuration provided will work the Consul
+  # Helm project by default.  It is possible to manually configure Vault to use a
+  # different HA backend.
+  ha:
+    enabled: true
+    replicas: {{ .Env.REPLICAS }}
+
+    # config is a raw string of default configuration when using a Stateful
+    # deployment. Default is to use a Consul for its HA storage backend.
+    # This should be HCL.
+    config: "templated by yq in generator.sh"
+
+# Vault UI
+ui:
+  # True if you want to create a Service entry for the Vault UI.
+  #
+  # serviceType can be used to control the type of service created. For
+  # example, setting this to "LoadBalancer" will create an external load
+  # balancer (for supported K8S installations) to access the UI.
+  enabled: true

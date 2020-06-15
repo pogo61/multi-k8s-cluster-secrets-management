@@ -1,0 +1,7 @@
+# @format
+
+# TODO: Need to figure out where this came from and version it in release-infrastructure.yaml
+
+serverHA:
+  extraVolumes:
+    - load: true

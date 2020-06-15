@@ -1,0 +1,19 @@
+# Vault environment connection details
+vaults:
+  - target:   true
+    env:        <target_environment>
+    namespace:  "vault"
+    k8s:        true
+    host:       "localhost"
+    port:       8200
+    podname:    "vault-0"
+    kubectx:    <target_kubecontext>
+
+  - target:   false
+    env:        "dev"
+    namespace:  ""
+    k8s:        false
+    host:       "vault.global.beamery.engineer"
+    port:       443
+    podname:    ""
+    kubectx:    ""

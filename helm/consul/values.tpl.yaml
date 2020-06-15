@@ -1,0 +1,75 @@
+# @format
+
+# Available parameters and their default values for the Consul chart.
+
+# global holds values that affect multiple components of the chart.
+global:
+  name: consul
+  # datacenter is the name of the datacenter that the agents should register
+  # as. This can't be changed once the Consul cluster is up and running
+  # since Consul doesn't support an automatic way to change this value
+  # currently: https://github.com/hashicorp/consul/issues/1858.
+  datacenter: "{{ .Env.WORKSPACE }}"
+
+# Server, when enabled, configures a server cluster to run. This should
+# be disabled if you plan on connecting to a Consul cluster external to
+# the Kube cluster.
+server:
+  enabled: true
+
+  # ensure that consul pods run on consul nodes
+  affinity: |
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-type
+            operator: In
+            values:
+            - consul
+
+  # bypass consul node taint
+  tolerations: |
+    - effect: NoSchedule
+      key: group
+      operator: Equal
+      value: consul
+# Client, when enabled, configures Consul clients to run on every node
+# within the Kube cluster. The current deployment model follows a traditional
+# DC where a single agent is deployed per node.
+client:
+  enabled: true
+
+  # bypass vault node taint
+  tolerations: |
+    - effect: NoSchedule
+      key: group
+      operator: Equal
+      value: vault
+
+  # ensure that consul agent pods run on vault nodes
+  affinity: |
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-type
+            operator: In
+            values:
+            - vault
+
+ui:
+  # True if you want to enable the Consul UI. The UI will run only
+  # on the server nodes. This makes UI access via the service below (if
+  # enabled) predictable rather than "any node" if you're running Consul
+  # clients as well.
+  enabled: true
+
+  # True if you want to create a Service entry for the Consul UI.
+  #
+  # serviceType can be used to control the type of service created. For
+  # example, setting this to "LoadBalancer" will create an external load
+  # balancer (for supported K8S installations) to access the UI.
+  service:
+    enabled: true
+    type: "NodePort"
