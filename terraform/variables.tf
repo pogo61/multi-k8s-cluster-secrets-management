@@ -1,1 +1,0 @@
-variable "node_pools" { type = map }
