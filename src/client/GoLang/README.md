@@ -5,8 +5,6 @@ This utility wraps all interactions with the Hashicorp Vault instance in the Kub
 Any Application/Service that requires secrets to access other components in the environment, or configs saved in Vault, 
 can call this factory with a Map of what is required and it will return a map with those values.
 
-## Related Repositories
-The is a sister repo called https://gitlab.com/Beamery/DevOps/configfactory which is the same factory implemented in Typescrypt. 
 
 ## Build and Configuration
 * import the configfactory module

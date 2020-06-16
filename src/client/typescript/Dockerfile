@@ -1,4 +1,4 @@
-FROM us.gcr.io/beamery-global/node:12
+FROM node:12
 
 WORKDIR /usr/src/
 
