@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/pogo61/multi-k8s-cluster-secrets-management/tree/master/src/client/GoLang/configfactory"
+	"github.com/pogo61/multi-k8s-cluster-secrets-management/src/client/GoLang/configfactory"
 	"log"
 )
 
