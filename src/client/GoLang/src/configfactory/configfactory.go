@@ -2,7 +2,6 @@ package configfactory
 
 import (
 	"bytes"
-	b64 "encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,8 +19,6 @@ import (
 
 var token = *new(string)
 var IP = *new(string)
-var vaultAddr = os.Getenv("VAULT_ADDR")
-var beam = os.Getenv("BEAM_ENV")
 var baseTokenPath = "/var/run/secrets/kubernetes.io/serviceaccount/"
 var baseLoginCheckDir = "/tmp/"
 var LoginCheckDir = "configFactory/"
@@ -49,83 +46,61 @@ func FileExists(filename string) bool {
 
 func CreateVars(vaultValues map[string]string) (map[string]string, error) {
 
-	if beam == "true" {
-		//read the base64 encoded file in as ascii
-		output64, err := ioutil.ReadFile("/beam/env_hash")
-		check(err)
-		output, _ := b64.StdEncoding.DecodeString(string(output64))
-
-		var variables = strings.Split(string(output), "\n")
-
-		// create map to be returned
-		var newMap = make(map[string]string)
-		//split the variable assignment into variable name/value pairs
-		for i, s := range variables {
-			var temp = strings.Split(string(s), "=")
-			log.Print("i is: " + string(i))
-			if temp[0] != "" {
-				newMap[temp[0]] = temp[1]
-			}
-		}
-
-		return newMap, nil
-	} else {
-		// this file was created when last logged in, and will exist unless token is recreated by K8s
-		if !FileExists(loginCheckPath) {
-			var err error
-			token, err = login()
-			if err != nil {
-				log.Print(err)
-				return nil, err
-			}
-		}
-
-		authClient, err := vault.NewClient(&vault.Config{Address: "http://" + IP + ":8200"})
-		authClient.SetToken(token)
+	// this file was created when last logged in, and will exist unless token is recreated by K8s
+	if !FileExists(loginCheckPath) {
+		var err error
+		token, err = login()
 		if err != nil {
-			panic(err)
+			log.Print(err)
+			return nil, err
 		}
-
-		var tempMap = make(map[string]string)
-		var newMap = make(map[string]string)
-
-		// Copy from the original map to the target map
-		for key, value := range vaultValues {
-			tempMap[key] = value
-		}
-
-		// read the secret from Vault then get the value of the field requested and create an entry in the new Map
-		for reqKey, reqValue := range tempMap {
-			var splitKey = strings.Split(reqKey, string('|'))
-			var temp = splitKey[0]
-			var secret = strings.Replace(temp, "/secret", "/secret/data", 1)
-			var reqField = splitKey[1]
-
-			c := authClient.Logical()
-			secretValues, err := c.Read(secret)
-			if err != nil {
-				log.Print(err)
-			}
-
-			for mapKey, mapVal := range secretValues.Data {
-				if mapKey == "data" {
-					for field, value := range mapVal.(map[string]interface{}) {
-						if reqField != "" {
-							if reqField == field {
-								newMap[reqValue] = fmt.Sprintf("%v", value)
-							}
-						} else {
-							log.Print("the secret must have a field defined")
-							panic(errors.New("the secret must have a field defined"))
-						}
-					}
-					break
-				}
-			}
-		}
-
-		return newMap, nil
 	}
+
+	authClient, err := vault.NewClient(&vault.Config{Address: "http://" + IP + ":8200"})
+	authClient.SetToken(token)
+	if err != nil {
+		panic(err)
+	}
+
+	var tempMap = make(map[string]string)
+	var newMap = make(map[string]string)
+
+	// Copy from the original map to the target map
+	for key, value := range vaultValues {
+		tempMap[key] = value
+	}
+
+	// read the secret from Vault then get the value of the field requested and create an entry in the new Map
+	for reqKey, reqValue := range tempMap {
+		var splitKey = strings.Split(reqKey, string('|'))
+		var temp = splitKey[0]
+		var secret = strings.Replace(temp, "/secret", "/secret/data", 1)
+		var reqField = splitKey[1]
+
+		c := authClient.Logical()
+		secretValues, err := c.Read(secret)
+		if err != nil {
+			log.Print(err)
+		}
+
+		for mapKey, mapVal := range secretValues.Data {
+			if mapKey == "data" {
+				for field, value := range mapVal.(map[string]interface{}) {
+					if reqField != "" {
+						if reqField == field {
+							newMap[reqValue] = fmt.Sprintf("%v", value)
+						}
+					} else {
+						log.Print("the secret must have a field defined")
+						panic(errors.New("the secret must have a field defined"))
+					}
+				}
+				break
+			}
+		}
+	}
+
+	return newMap, nil
 }
 
 func login() (string, error) {

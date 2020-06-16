@@ -25,69 +25,50 @@ export class ConfigFactory {
 
     async createVars(vaultValues:Map<string, string>) {
 
-        //only read the base64 encoded file if env var path is defined
-        if (this.beam == 'true') {
-            //read the base64 encoded file in as ascii
-            let output64 = fs.readFileSync("/beam/env_hash", 'ascii');
-            let output = Base64.decode(output64);
-            // create array of variable assignments
-            let variables = output.split("\n");
+        // process.env.DEBUG = 'node-vault'; // switch on debug mode
 
-            // create map to be returned
-            let newMap = new Map<string, string>();
-            //split the variable assignment into variable name/value pairs
-            for (let i in variables) {
-                let temp = variables[i].split("=");
-                newMap.set(temp[0],temp[1]);
-            }
-
-            return newMap;
-        } else {
-            // process.env.DEBUG = 'node-vault'; // switch on debug mode
-
-            // this file was created when last logged in, and will exist unless token is recreated by K8s
-            console.log("checking if already logged in")
-            if (!fs.existsSync(this.loginCheckPath)) {
-                await this.Login()
-            }
-
-            // create map to be returned
-            let newMap = new Map<string, string>();
-
-            // set up client to access vault`
-            let client_options = {
-                apiVersion: 'v1',
-                endpoint: this.url,
-                token: this.token,
-                json: true
-            };
-
-            // create a vault access client
-            let client_vault = require("node-vault")(client_options);
-
-            // read the secret from Vault then get the value of the field requested and create an entry in the new Map
-            // console.log("read the secret from Vault then get the value of the field requested and create an entry in the new Map");
-            for (let key of vaultValues.keys()) {
-                let splitKey = key.split('|');
-                let temp = splitKey[0];
-                let secret = temp.slice(0, 6) + "/data" + temp.slice(6);
-                let field = splitKey[1];
-                // console.log("the secret needed is "+secret+" and the field is "+field);
-                // console.log("reading the secret from vault");
-                await client_vault.read(secret).then((body) => {
-                    if (field != undefined) {
-                        newMap.set(vaultValues.get(key), body.data.data[field]);
-                        // console.log("vaultValues.get(key) is "+vaultValues.get(key))
-                        // console.log("reading the field value from vault is "+body.data.data[field]);
-                    } else {
-                        // console.log("no field provided to read from secret");
-                        return new Error("no field provided to read from secret");
-                    }
-                }).catch(console.error);
-            }
-            //return newMap;
-            return Promise.resolve(newMap);
+        // this file was created when last logged in, and will exist unless token is recreated by K8s
+        console.log("checking if already logged in")
+        if (!fs.existsSync(this.loginCheckPath)) {
+            await this.Login()
         }
+
+        // create map to be returned
+        let newMap = new Map<string, string>();
+
+        // set up client to access vault`
+        let client_options = {
+            apiVersion: 'v1',
+            endpoint: this.url,
+            token: this.token,
+            json: true
+        };
+
+        // create a vault access client
+        let client_vault = require("node-vault")(client_options);
+
+        // read the secret from Vault then get the value of the field requested and create an entry in the new Map
+        // console.log("read the secret from Vault then get the value of the field requested and create an entry in the new Map");
+        for (let key of vaultValues.keys()) {
+            let splitKey = key.split('|');
+            let temp = splitKey[0];
+            let secret = temp.slice(0, 6) + "/data" + temp.slice(6);
+            let field = splitKey[1];
+            // console.log("the secret needed is "+secret+" and the field is "+field);
+            // console.log("reading the secret from vault");
+            await client_vault.read(secret).then((body) => {
+                if (field != undefined) {
+                    newMap.set(vaultValues.get(key), body.data.data[field]);
+                    // console.log("vaultValues.get(key) is "+vaultValues.get(key))
+                    // console.log("reading the field value from vault is "+body.data.data[field]);
+                } else {
+                    // console.log("no field provided to read from secret");
+                    return new Error("no field provided to read from secret");
+                }
+            }).catch(console.error);
+        }
+        //return newMap;
+        return Promise.resolve(newMap);
     }
 
     async Login() {

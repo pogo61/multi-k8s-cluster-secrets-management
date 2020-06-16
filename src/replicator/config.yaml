@@ -13,7 +13,7 @@ vaults:
     env:        "dev"
     namespace:  ""
     k8s:        false
-    host:       "vault.global.beamery.engineer"
+    host:       "vault.global.master"
     port:       443
     podname:    ""
     kubectx:    ""

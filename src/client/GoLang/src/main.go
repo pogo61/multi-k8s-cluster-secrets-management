@@ -1,8 +1,8 @@
 package main
 
 import (
-	"configfactory/configfactory"
 	"fmt"
+	"github.com/pogo61/multi-k8s-cluster-secrets-management/tree/master/src/client/GoLang/configfactory"
 	"log"
 )
 
