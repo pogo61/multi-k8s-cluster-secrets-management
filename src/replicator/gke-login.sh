@@ -2,9 +2,9 @@
 
 set -eu
 
-# $CLUSTER   = The name of the GKE cluster (e.g. gke_beamery-staging_europe-west4_devops)
+# $CLUSTER   = The name of the GKE cluster (e.g. gke_staging_europe-west4_devops)
 # $REGION    = The GCP region of the GKE cluster (e.g. europe-west4)
-# $PROJECT   = The GCP project of th GKE cluster (e.g. beamery-staging)
+# $PROJECT   = The GCP project of th GKE cluster (e.g. staging)
 
 CLUSTER=${1}
 REGION=${2}
