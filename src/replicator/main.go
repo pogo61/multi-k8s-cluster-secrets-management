@@ -80,7 +80,7 @@ var totalSecrets = 0
 
 func main() {
 
-	f, err := os.Open("../config.yaml")
+	f, err := os.Open("./config.yaml")
 	if err != nil {
 		log.Print("error opening the config file: " + err.Error())
 	}

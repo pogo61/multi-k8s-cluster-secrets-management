@@ -2,7 +2,10 @@ FROM golang:alpine
 RUN apk update && apk upgrade && \
         apk add bash git openssh
 
-ADD ./src /go/src
+ADD ./configfactory /go/src/configfactory
+ADD ./main.go /go/src/
+ADD ./go.mod /go/src/
+ADD ./go.sum /go/src/
 WORKDIR /go/src
 #ENV GOPATH=/go/srv
 #RUN go get github.com/hashicorp/vault/api
