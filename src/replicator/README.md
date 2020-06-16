@@ -9,18 +9,18 @@ This will allow Devs to define their own secrets
 
 ## Usage
 Let's assume you want to create a secret for an API token, and you need to use it in preview, canary, and production:
-1. login in to `https://vault.global.beamery.engineer` and create a secret called `preview/google/api` and call the field `token`, 
+1. login in to `your base vault instance` and create a secret called `dev/google/api` and call the field `token`, 
 and it's value the value of the token you need in preview 
 (assuming it is different to the values in the other environments). It should look like:
 ![pic](create%20preview%20token.png)
-2. Do the same for the secret and value you want in Canary, except this secret will be called `canary/google/api`
+2. Do the same for the secret and value you want in Test, except this secret will be called `test/google/api`
 3. Do the same for the secret and value you want in Production, except this secret will be called `production/google/api`
 
 That's it!
 
 The vault-replicator pipeline runs regularly and copies all secrets under /secret/preview to the preview Vault instance.
 
-This is the same for /secret/canary and /secret/production. 
+This is the same for /secret/test and /secret/production. 
 
 In the above example the secret in is called `/google/api` in all the environments
 
