@@ -1,5 +1,4 @@
 # @format
 
-cert-manager: https://github.com/jetstack/cert-manager/releases/download/v0.14.1/cert-manager-legacy.yaml
 consul: https://github.com/hashicorp/consul-helm/archive/v0.18.0.tar.gz
 vault: https://github.com/hashicorp/vault-helm/archive/v0.4.0.tar.gz

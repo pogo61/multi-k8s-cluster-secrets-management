@@ -1,8 +1,6 @@
 #!/bin/bash -
 echo "running 03-k8s-auth.sh"
 
-# TODO: Move this to configuration via a separate TF project
-
 source ./__helpers.sh ${1}
 
 CLUSTER_FQN=$(gke-cluster-name "$(cluster-name ${1})")
@@ -27,12 +25,13 @@ echo "namespace is $(namespace)"
 echo "VAULT_PODNAME is ${VAULT_PODNAME}"
 #K8S_HOST="http://$(kubectl get pod ${VAULT_PODNAME} -n $(namespace) -o jsonpath='{.status.hostIP}'| awk '{$1=$1;print}')"
 
-kubectl port-forward "${VAULT_PODNAME}" 8200:8200 -n $(namespace) &
+kubectl port-forward "${VAULT_PODNAME}" 9200:8200 -n $(namespace) &
 
 sleep 1
 
 export VAULT_TOKEN=$(vault kv get -field=root_token secret/vault/"${1}")
-export VAULT_ADDR="http://localhost:8200"
+vault_save="$VAULT_ADDR"
+export VAULT_ADDR="http://localhost:9200"
 
 
 # Enable the Kubernetes authentication method
@@ -49,5 +48,8 @@ vault write auth/kubernetes/config \
   kubernetes_ca_cert="${K8S_CACERT}" #\
 #  token_reviewer_jwt="${TR_ACCOUNT_TOKEN}"
 
+
 PORT_PROCESS_ID="$(ps aux | grep kubectl | sed -n 1p | awk '{ print $2 }')"
 kill -9 "${PORT_PROCESS_ID}"
+
+export VAULT_ADDR="$vault_save"

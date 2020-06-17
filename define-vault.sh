@@ -1,36 +1,28 @@
 #!/usr/bin/env bash
 
-# $WORKSPACE = The Terraform Workspace
-# $SIZE      = The TFVars file
-# $CLUSTER   = The name of the GKE cluster (falls back to $WORKSPACE if empty)
-# $REGION    = The GCP region of the GKE cluster (defaults to us-west1)
-# $PROJECT   = The GCP project of th GKE cluster (defaults to staging)
+# $WORKSPACE = The Terraform Workspace/K8s cluster environment
+# $SIZE      = The cluster size
+# $CLUSTER   = The name of the cluster (falls back to $WORKSPACE if empty)
 
 set -eu
-GREEN=$'\e[1;32m'
-RESET=$'\e[0m'
-
-workspace=${1:-${WORKSPACE}}
-size=${2:-${SIZE}}
-image_file=${VERSIONS_FILE:-${PWD}/image.yaml}
 
 function deploy_helm() {
 	local app_name="${1}"
 	local path="helm/${1}"
 	local namespace="${2}"
 	local size="${3}"
-	chart=$(yq read "${versions_file}" "${app_name}")
+	chart=$(yq read "${image_file}" "${app_name}")
 
   printf "\n${GREEN}====== %s %s ======${RESET}\n" "installing" "${app_name}"
 
 	(
 		cd "${path}"
 		./generator.sh "${size}"
-		helm upgrade --install "${app_name}" "${chart}" -f values.yaml --namespace "${namespace}" --cleanup-on-fail --wait
+		helm upgrade --install "${app_name}" "${chart}" -f values.yaml --namespace "${namespace}" --cleanup-on-fail --wait  #--dry-run --debug
 	)
 }
 
-function configure_vault() {
+function configure() {
 	local script_path="${1}"
 	pwd=$(pwd)
 	cd "${script_path}"
@@ -47,11 +39,31 @@ function configure_vault() {
 	cd "${pwd}"
 }
 
-gcloud beta container clusters get-credentials "${CLUSTER:-${workspace}}" --region "${REGION:-us-west1}" --project "${PROJECT:-staging}"
+function initialise() {
+  GREEN=$'\e[1;32m'
+  RESET=$'\e[0m'
 
+  workspace=${1:-${WORKSPACE}}
+  export WORKSPACE=${1}
+  
+  size=${2:-${SIZE}}
+  image_file=${IMAGE_FILE:-${PWD}/image.yaml}
+
+  if [ $# -ge 3 ]
+  then
+    vault_addr=${3}
+    export VAULT_ADDR="$vault_addr"
+  fi
+
+  kubectx "$workspace"
+}
+
+initialise "$@"
+
+configure "helm/consul/scripts/" "vault"
 deploy_helm "consul" "vault" "${size}"
-deploy_helm "vault" "vault" "${size}"
 
+deploy_helm "vault" "vault" "${size}"
 sleep 10
 vault_init_result=$(kubectl -n vault exec -it vault-0 -- vault operator init -n 1 -t 1 -format=json || true)
 case ${vault_init_result} in
@@ -64,8 +76,8 @@ case ${vault_init_result} in
 	echo "Vault already initialised, continuing..."
 	;;
 *)
-	echo "${vault_init_result}"
+	echo "error: ${vault_init_result}"
 	;;
 esac
 
-configure_vault "helm/vault/scripts/" "${workspace}"
+configure "helm/vault/scripts/" "${workspace}"

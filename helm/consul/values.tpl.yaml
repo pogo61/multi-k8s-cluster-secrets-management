@@ -16,7 +16,9 @@ global:
 # the Kube cluster.
 server:
   enabled: true
-
+  replicas: {{ .Env.REPLICAS }}
+  bootstrapExpect: {{ .Env.REPLICAS }}
+  {{ if ne .Env.WORKSPACE "minikube" }}
   # ensure that consul pods run on consul nodes
   affinity: |
     nodeAffinity:
@@ -34,12 +36,15 @@ server:
       key: group
       operator: Equal
       value: consul
+  {{ else }}
+  
+  {{ end }}
 # Client, when enabled, configures Consul clients to run on every node
 # within the Kube cluster. The current deployment model follows a traditional
 # DC where a single agent is deployed per node.
 client:
   enabled: true
-
+  {{ if ne .Env.WORKSPACE "minikube" }}
   # bypass vault node taint
   tolerations: |
     - effect: NoSchedule
@@ -57,6 +62,9 @@ client:
             operator: In
             values:
             - vault
+  {{ else }}
+
+  {{ end }}
 
 ui:
   # True if you want to enable the Consul UI. The UI will run only

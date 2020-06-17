@@ -11,9 +11,13 @@ storage "consul" {
   address = "HOST_IP:8500"
 }
 
+{{ if ne .Env.WORKSPACE "minikube" }}
 seal "gcpckms" {
   project    = "{{ .Env.PROJECT }}"
   region     = "{{ .Env.REGION }}"
   key_ring   = "vault-helm-unseal-kr-{{ .Env.WORKSPACE }}"
   crypto_key = "vault-helm-unseal-key"
 }
+{{ else }}
+
+{{ end }}

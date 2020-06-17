@@ -8,7 +8,7 @@ server:
   # Resource requests, limits, etc. for the server cluster placement. This
   # should map directly to the value of the resources field for a PodSpec.
   # By default no direct resource request is made.
-
+  {{ if ne .Env.WORKSPACE "minikube" }}
   resources:
     requests:
       memory: 500Mi
@@ -16,7 +16,9 @@ server:
     limits:
       memory: 500Mi
       cpu: 250m
+  {{ else }}
 
+  {{ end }}
   # Ingress allows ingress services to be created to allow external access
   # from Kubernetes to access Vault pods.
   ingress:
@@ -31,6 +33,7 @@ server:
   # Used to set the sleep time during the preStop step
   preStopSleepSeconds: 5
 
+  {{ if ne .Env.WORKSPACE "minikube" }}
   # extraEnvironmentVars is a list of extra enviroment variables to set with the stateful set. These could be
   # used to include variables required for auto-unseal.
   extraEnvironmentVars:
@@ -41,7 +44,11 @@ server:
   extraVolumes:
     - type: "secret"
       name: "vault-unseal-credentials"
+  {{ else }}
 
+  {{ end }}
+
+  {{ if ne .Env.WORKSPACE "minikube" }}
   # Affinity Settings
   # Commenting out or setting as empty the affinity variable, will allow
   # deployment to single node services such as Minikube
@@ -64,6 +71,9 @@ server:
       operator: Equal
       value: vault
 
+  {{ else }}
+
+  {{ end }}
   # Extra labels to attach to the server pods
   # This should be a multi-line string mapping directly to the a map of
   # the labels to apply to the server pods

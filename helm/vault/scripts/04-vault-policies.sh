@@ -2,20 +2,19 @@
 set -Eeuo pipefail
 echo "running 04-vault-policies.sh"``
 
-# TODO: Move this to configuration via a separate TF project
-
 source ./__helpers.sh ${1}
 
 namespace="${1}"
 
 VAULT_PODNAME=$(kubectl get pods -n $(namespace) -l app=vault -o jsonpath='{.items[*].metadata.name}' --field-selector=status.phase=Running | awk '{ print $1 }')
 
-kubectl port-forward "${VAULT_PODNAME}" 8200:8200 -n $(namespace) &
+kubectl port-forward "${VAULT_PODNAME}" 9200:8200 -n $(namespace) &
 
 sleep 1
 
+vault_save="$VAULT_ADDR"
 export VAULT_TOKEN=$(vault kv get -field=root_token secret/vault/"${1}")
-export VAULT_ADDR="http://localhost:8200"
+export VAULT_ADDR="http://localhost:9200"
 
 
 vault policy write runtime_vault-kv - <<EOH
@@ -292,3 +291,5 @@ vault write auth/kubernetes/role/infra-dev-role \
 
 PORT_PROCESS_ID="$(ps aux | grep kubectl | sed -n 1p | awk '{ print $2 }')"
 kill -9 "${PORT_PROCESS_ID}"
+
+export VAULT_ADDR="$vault_save"

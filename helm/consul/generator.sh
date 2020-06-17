@@ -4,6 +4,13 @@ set -eu
 
 # $WORKSPACE = The Terraform Workspace
 
-workspace=${WORKSPACE:-devops}
+workspace=${WORKSPACE:-dev}
+size=${1}
 
-WORKSPACE=${workspace} gomplate -f values.tpl.yaml -o values.yaml
+if [[ ${size} == "large" ]]; then
+  replicas=3
+else
+  replicas=1
+fi
+
+WORKSPACE=${workspace} REPLICAS=${replicas} gomplate -f values.tpl.yaml -o values.yaml
