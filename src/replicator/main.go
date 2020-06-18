@@ -35,6 +35,7 @@ type Vault struct {
 	Host      string `yaml:"host"`
 	Port      int    `yaml:"port"`
 	Podname   string `yaml:"podname"`
+	Podport   int 	 `yaml:"podport"`
 	Kubectx   string `yaml:"kubectx"`
 }
 
@@ -49,6 +50,7 @@ type readConf struct {
 	host       string
 	port       int
 	podname    string
+	podport    int
 	kubectx    string
 	sourceHost string
 	sourcePort int
@@ -79,6 +81,7 @@ var kubeconfig *string
 var totalSecrets = 0
 
 func main() {
+	log.Print("local vault token is: " + token)
 
 	f, err := os.Open("./config.yaml")
 	if err != nil {
@@ -112,6 +115,7 @@ func main() {
 			readcf.host = config.Vaults[i].Host
 			readcf.port = config.Vaults[i].Port
 			readcf.podname = config.Vaults[i].Podname
+			readcf.podport = config.Vaults[i].Podport
 			readcf.kubectx = config.Vaults[i].Kubectx
 			if readcf.sourceHost != "" {
 				break
@@ -135,12 +139,12 @@ func main() {
 	// load base secret
 	rootSecret := "env/" + readcf.env + "/"
 
-	var loginErr error
-	token, loginErr = login()
-	if loginErr != nil {
-		log.Print(loginErr)
-	}
-	log.Print("the token is ", token)
+	//var loginErr error
+	//token, loginErr = login()
+	//if loginErr != nil {
+	//	log.Print(loginErr)
+	//}
+	//log.Print("the token is ", token)
 
 	readResult, err = readVaultSecret(readcf, rootSecret, true)
 	if err != nil {
@@ -191,14 +195,21 @@ func readVaultSecret(readcf readConf, secret string, thread bool) (map[int]map[s
 	}
 
 	//	log.Print("the secret path is ", secret)
-
+	var protocol string
+	log.Print("readcf.sourceHost is: " + readcf.sourceHost)
+	if readcf.sourceHost == "localhost"  {
+		protocol = "http://"
+	}else {
+		protocol = "https://"
+	}
 	c := &http.Client{}
-	req, _ := http.NewRequest("GET", "https://"+readcf.sourceHost+":"+strconv.Itoa(readcf.sourcePort)+"/v1/secret/metadata/"+fmt.Sprintf("%v", secret)+"?list=true", nil)
+	req, _ := http.NewRequest("GET", protocol+readcf.sourceHost+":"+strconv.Itoa(readcf.sourcePort)+"/v1/secret/metadata/"+fmt.Sprintf("%v", secret)+"?list=true", nil)
 	req.Header.Set("X-Vault-Token", token)
 
 	// get list of base secrets
 	resp, err := c.Do(req)
 	if err != nil {
+		log.Print("error reading the root secret in the host vault")
 		log.Print("the error is: " + err.Error())
 		resp.Body.Close()
 		returnErr = err
@@ -239,8 +250,9 @@ func readVaultSecret(readcf readConf, secret string, thread bool) (map[int]map[s
 		panic(err.Error())
 	}
 
-	//log.Print("vault address is : " + "https://"+readcf.sourceHost + ":" + strconv.Itoa(readcf.sourcePort))
-	authClient, err = vault.NewClient(&vault.Config{Address: "https://" + readcf.sourceHost + ":" + strconv.Itoa(readcf.sourcePort)})
+	log.Print("readcf.sourceHost is: " + readcf.sourceHost)
+
+	authClient, err = vault.NewClient(&vault.Config{Address: protocol + readcf.sourceHost + ":" + strconv.Itoa(readcf.sourcePort)})
 	if err != nil {
 		panic(err)
 	}
@@ -396,7 +408,7 @@ func writeVaultSecret(secrets map[int]map[string]string) (map[string]string, err
 				},
 			},
 			LocalPort: readcf.port,
-			PodPort:   readcf.port,
+			PodPort:   readcf.podport,
 			Out:       *out,
 			ErrOut:    *errOut,
 			StopCh:    stopCh,
@@ -497,11 +509,27 @@ func login() (string, error) {
 	}
 
 	// creat the login JSON payload
-	values := map[string]string{"token": token}
-	jsonValue, _ := json.Marshal(values)
+	//values := map[string]string{"token": token}
+	//jsonValue, _ := json.Marshal(values)
+	//log.Printf("jsonValue is: %s", jsonValue)
+
+	var protocol string
+	log.Print("readcf.sourceHost is: " + readcf.sourceHost)
+	if readcf.sourceHost == "localhost"  {
+		protocol = "http://"
+	}else {
+		protocol = "https://"
+	}
+	log.Print("protocol is: " + protocol)
 
 	// login to Vault
-	resp, err := http.Post("https://"+readcf.sourceHost+":"+strconv.Itoa(readcf.sourcePort)+"/v1/auth/github/login", "application/json", bytes.NewBuffer(jsonValue))
+	c := &http.Client{}
+	req, _ := http.NewRequest("POST", protocol+readcf.sourceHost+":"+strconv.Itoa(readcf.sourcePort)+"/v1/auth/token", nil)
+	req.Header.Set("X-Vault-Token", token)
+
+	// get list of base secrets
+	resp, err := c.Do(req)
+	//resp, err := http.Post(protocol+readcf.sourceHost+":"+strconv.Itoa(readcf.sourcePort)+"/v1/auth/token/login", "application/json", bytes.NewBuffer(jsonValue))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -538,9 +566,10 @@ func login() (string, error) {
 func PortForwardAPod(req PortForwardAPodRequest) error {
 	path := fmt.Sprintf("/api/v1/namespaces/%s/pods/%s/portforward",
 		req.Pod.Namespace, req.Pod.Name)
-	//log.Print("path is : " + path)
-	hostIP := strings.TrimLeft(req.RestConfig.Host, "https:/")
-	//log.Print("hostIP is : " + hostIP)
+
+	hostIP := strings.TrimLeft(req.RestConfig.Host, "https://")
+	log.Print("hostIP is : " + hostIP)
+	log.Print("path is : " + path)
 
 	transport, upgrader, err := spdy.RoundTripperFor(req.RestConfig)
 	if err != nil {

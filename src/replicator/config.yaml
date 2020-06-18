@@ -1,19 +1,20 @@
 # Vault environment connection details
 vaults:
   - target:   true
-    env:        <target_environment>
+    env:        minikube
     namespace:  "vault"
     k8s:        true
     host:       "localhost"
-    port:       8200
+    port:       9200
     podname:    "vault-0"
-    kubectx:    <target_kubecontext>
+    podport:    8200
+    kubectx:    minikube
 
   - target:   false
     env:        "dev"
     namespace:  ""
     k8s:        false
-    host:       "vault.global.master"
-    port:       443
+    host:       "localhost"
+    port:       8200
     podname:    ""
     kubectx:    ""
