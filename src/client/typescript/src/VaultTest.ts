@@ -3,7 +3,7 @@
 import {ConfigFactory} from "./ConfigFactory";
 
     let vaultVars = new Map();
-    vaultVars.set("secret/exampleapp/config|token","token");
+    vaultVars.set("/secret/google/api|token","token");
 
     try {
         let config = new ConfigFactory();

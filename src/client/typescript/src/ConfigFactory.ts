@@ -4,7 +4,6 @@ import {Cluster} from "@kubernetes/client-node/dist/config_types";
 
 export class ConfigFactory {
     url: string;
-    beam: string;
     token: string;
     IP: string;
     roleName = "cf-test";
@@ -19,8 +18,7 @@ export class ConfigFactory {
 
     constructor() {
         // console.log("in constructor")
-        this.url = process.env.VAULT_URL;
-        this.beam = process.env.BEAM_ENV;
+        this.url = process.env.VAULT_ADDR;
     }
 
     async createVars(vaultValues:Map<string, string>) {
@@ -41,7 +39,7 @@ export class ConfigFactory {
             apiVersion: 'v1',
             endpoint: this.url,
             token: this.token,
-            json: true
+            json: false
         };
 
         // create a vault access client
@@ -52,7 +50,7 @@ export class ConfigFactory {
         for (let key of vaultValues.keys()) {
             let splitKey = key.split('|');
             let temp = splitKey[0];
-            let secret = temp.slice(0, 6) + "/data" + temp.slice(6);
+            let secret = temp.slice(0, 7) + "/data" + temp.slice(7);
             let field = splitKey[1];
             // console.log("the secret needed is "+secret+" and the field is "+field);
             // console.log("reading the secret from vault");
@@ -75,7 +73,6 @@ export class ConfigFactory {
         // console.log("about to login to vault");
 
         await this.getVaultIp();
-
         await this.vaultLogin();
 
         // create file to indicate login has occurred for this instance of the token
@@ -102,21 +99,6 @@ export class ConfigFactory {
             const kc = new k8s.KubeConfig();
             kc.loadFromCluster();
             const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
-
-            // console.log("current k8s context is " + kc.currentContext);
-            // kc.clusters.forEach(function (value) {
-            //     console.log("the cluster name is: " + value.name);
-            //     console.log("the cluster server is: " + value.server);
-            //     console.log("the cluster caFile path is: " + value.caFile);
-            // });
-            // kc.contexts.forEach(function (value) {
-            //     console.log("the context is: " + value.name);
-            // });
-
-            // get the IP address of the active node of HA Vault
-            // Promise.all([k8sApi.listNamespacedPod('vault', null, null, null ,null, 'app:vault')])
-            // let prom = k8sApi.listNamespacedPod('vault');
-            // console.log("getting all the vault pods in the vault namespace");
             const getVaultPods = Promise.all([k8sApi.listNamespacedPod('vault', null, null, null ,null, 'app=vault')]);
             await getVaultPods.then((res) => {
                 // console.log("list of response statusCode is " + res[0].response.statusCode);

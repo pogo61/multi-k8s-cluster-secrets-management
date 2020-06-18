@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const ConfigFactory_1 = require("./ConfigFactory");
 let vaultVars = new Map();
-vaultVars.set("secret/exampleapp/config|token", "token");
+vaultVars.set("/secret/google/api|token", "token");
 try {
     let config = new ConfigFactory_1.ConfigFactory();
     const confVars = Promise.all([config.createVars(vaultVars)]);

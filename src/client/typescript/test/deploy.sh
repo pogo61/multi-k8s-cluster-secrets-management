@@ -12,4 +12,4 @@ vault write auth/kubernetes/role/cf-test \
     token_policies="runtime_vault-kv,runtime_vault-auth" \
     ttl=24h
 
-kubectl apply -f kubernetes/deployment.yaml
+kubectl apply -f test/deployment.yaml

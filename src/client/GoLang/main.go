@@ -9,8 +9,7 @@ import (
 func main() {
 	log.Print("starting test")
 	var vaultVars = make(map[string]string)
-	vaultVars["/secret/exampleapp/config|token"] = "config-token"
-	vaultVars["/secret/testcorp/api|token"] = "api-token"
+	vaultVars["/secret/google/api|token"] = "api-token"
 
 	for i := 1; i < 5; i++ {
 		confVars, err := configfactory.CreateVars(vaultVars)

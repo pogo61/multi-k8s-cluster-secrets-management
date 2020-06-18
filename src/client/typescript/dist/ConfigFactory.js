@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
-const js_base64_1 = require("js-base64");
 class ConfigFactory {
     constructor() {
         this.roleName = "cf-test";
@@ -26,69 +25,50 @@ class ConfigFactory {
         this.tokenPath = this.baseTokenPath + this.tokenFile;
         this.loginCheckPath = this.baseLoginCheckPath + "/" + this.tokenFilecheck;
         // console.log("in constructor")
-        this.url = process.env.VAULT_URL;
-        this.beam = process.env.BEAM_ENV;
+        this.url = process.env.VAULT_ADDR;
     }
     createVars(vaultValues) {
         return __awaiter(this, void 0, void 0, function* () {
-            //only read the base64 encoded file if env var path is defined
-            if (this.beam == 'true') {
-                //read the base64 encoded file in as ascii
-                let output64 = fs_1.default.readFileSync("/beam/env_hash", 'ascii');
-                let output = js_base64_1.Base64.decode(output64);
-                // create array of variable assignments
-                let variables = output.split("\n");
-                // create map to be returned
-                let newMap = new Map();
-                //split the variable assignment into variable name/value pairs
-                for (let i in variables) {
-                    let temp = variables[i].split("=");
-                    newMap.set(temp[0], temp[1]);
-                }
-                return newMap;
+            // process.env.DEBUG = 'node-vault'; // switch on debug mode
+            // this file was created when last logged in, and will exist unless token is recreated by K8s
+            console.log("checking if already logged in");
+            if (!fs_1.default.existsSync(this.loginCheckPath)) {
+                yield this.Login();
             }
-            else {
-                // process.env.DEBUG = 'node-vault'; // switch on debug mode
-                // this file was created when last logged in, and will exist unless token is recreated by K8s
-                console.log("checking if already logged in");
-                if (!fs_1.default.existsSync(this.loginCheckPath)) {
-                    yield this.Login();
-                }
-                // create map to be returned
-                let newMap = new Map();
-                // set up client to access vault`
-                let client_options = {
-                    apiVersion: 'v1',
-                    endpoint: this.url,
-                    token: this.token,
-                    json: true
-                };
-                // create a vault access client
-                let client_vault = require("node-vault")(client_options);
-                // read the secret from Vault then get the value of the field requested and create an entry in the new Map
-                // console.log("read the secret from Vault then get the value of the field requested and create an entry in the new Map");
-                for (let key of vaultValues.keys()) {
-                    let splitKey = key.split('|');
-                    let temp = splitKey[0];
-                    let secret = temp.slice(0, 6) + "/data" + temp.slice(6);
-                    let field = splitKey[1];
-                    // console.log("the secret needed is "+secret+" and the field is "+field);
-                    // console.log("reading the secret from vault");
-                    yield client_vault.read(secret).then((body) => {
-                        if (field != undefined) {
-                            newMap.set(vaultValues.get(key), body.data.data[field]);
-                            // console.log("vaultValues.get(key) is "+vaultValues.get(key))
-                            // console.log("reading the field value from vault is "+body.data.data[field]);
-                        }
-                        else {
-                            // console.log("no field provided to read from secret");
-                            return new Error("no field provided to read from secret");
-                        }
-                    }).catch(console.error);
-                }
-                //return newMap;
-                return Promise.resolve(newMap);
+            // create map to be returned
+            let newMap = new Map();
+            // set up client to access vault`
+            let client_options = {
+                apiVersion: 'v1',
+                endpoint: this.url,
+                token: this.token,
+                json: false
+            };
+            // create a vault access client
+            let client_vault = require("node-vault")(client_options);
+            // read the secret from Vault then get the value of the field requested and create an entry in the new Map
+            // console.log("read the secret from Vault then get the value of the field requested and create an entry in the new Map");
+            for (let key of vaultValues.keys()) {
+                let splitKey = key.split('|');
+                let temp = splitKey[0];
+                let secret = temp.slice(0, 7) + "/data" + temp.slice(7);
+                let field = splitKey[1];
+                // console.log("the secret needed is "+secret+" and the field is "+field);
+                // console.log("reading the secret from vault");
+                yield client_vault.read(secret).then((body) => {
+                    if (field != undefined) {
+                        newMap.set(vaultValues.get(key), body.data.data[field]);
+                        // console.log("vaultValues.get(key) is "+vaultValues.get(key))
+                        // console.log("reading the field value from vault is "+body.data.data[field]);
+                    }
+                    else {
+                        // console.log("no field provided to read from secret");
+                        return new Error("no field provided to read from secret");
+                    }
+                }).catch(console.error);
             }
+            //return newMap;
+            return Promise.resolve(newMap);
         });
     }
     Login() {
@@ -118,19 +98,6 @@ class ConfigFactory {
                 const kc = new k8s.KubeConfig();
                 kc.loadFromCluster();
                 const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
-                // console.log("current k8s context is " + kc.currentContext);
-                // kc.clusters.forEach(function (value) {
-                //     console.log("the cluster name is: " + value.name);
-                //     console.log("the cluster server is: " + value.server);
-                //     console.log("the cluster caFile path is: " + value.caFile);
-                // });
-                // kc.contexts.forEach(function (value) {
-                //     console.log("the context is: " + value.name);
-                // });
-                // get the IP address of the active node of HA Vault
-                // Promise.all([k8sApi.listNamespacedPod('vault', null, null, null ,null, 'app:vault')])
-                // let prom = k8sApi.listNamespacedPod('vault');
-                // console.log("getting all the vault pods in the vault namespace");
                 const getVaultPods = Promise.all([k8sApi.listNamespacedPod('vault', null, null, null, null, 'app=vault')]);
                 yield getVaultPods.then((res) => {
                     // console.log("list of response statusCode is " + res[0].response.statusCode);
