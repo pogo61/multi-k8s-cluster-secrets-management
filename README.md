@@ -1,5 +1,5 @@
 # multi-k8s-cluster-secrets-management
-##<ins>Description</ins>
+<h2><ins>Description</ins></h2>
 
 The main use case for this is to define different secret branches per environment in your Master Vault instance 
 and have them replicated to the Slave Vault instances in those environments. 
