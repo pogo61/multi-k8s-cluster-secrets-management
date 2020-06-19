@@ -7,6 +7,7 @@ and have them replicated to the Slave Vault instances in those environments.
 This will allow Devs to define their own secrets as needed, and not rely on DevOps to implement them in the different K8s environments.
 
 <h2><ins>Architecture</ins></h2>
+
  ![Architecture](Secrets_Management_Replication.png)
    
 As you can see, all secrets are defined , per environment, in the master Vault, and the replicator
