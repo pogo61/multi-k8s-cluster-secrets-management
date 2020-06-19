@@ -33,7 +33,7 @@ This script takes three parameters:
 creates a slave in the local minikube instance, with a single pod for Vault and Consul, and defines the root token in the master Vault instance at http://127.0.0.1:8200.
 This is obviously for a dev environment, with a dev instance of Vault running as the local master. 
 
-<ins>Note</ins>, the access details for the newly created Vault slave are kept in /secret/vault/`environment` where 'environment' is the same ast the vault of the **Environment** input variable  
+<ins>Note</ins>, the access details for the newly created Vault slave are kept in /secret/vault/`environment` of the Master Vault, where 'environment' is the same ast the vault of the **Environment** input variable  
 
 <h2><ins>Replicator</ins></h2>
 Let's assume you want to create a secret for an API token, and you need to use it in Test, UAT, and production:
