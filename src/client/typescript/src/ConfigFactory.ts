@@ -44,6 +44,7 @@ export class ConfigFactory {
         // create a vault access client
         let client_vault = require("node-vault")(client_options);
 
+        // read the secret from Vault then get the value of the field requested and create an entry in the new Map
         for (let key of vaultValues.keys()) {
             let splitKey = key.split('|');
             let temp = splitKey[0];
