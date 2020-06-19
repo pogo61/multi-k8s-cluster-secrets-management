@@ -38,7 +38,7 @@ This is obviously for a dev environment, with a dev instance of Vault running as
 <h2><ins>Replicator</ins></h2>
 Let's assume you want to create a secret for an API token, and you need to use it in Test, UAT, and production:
 1. login in to `your base vault instance` and create a secret called `dev/google/api` and call the field `token`, 
-and it's value the value of the token you need in preview 
+and it's value the value of the token you need in the UAT environment 
 (assuming it is different to the values in the other environments). It should look like:
 
 2. Do the same for the secret and value you want in Test, except this secret will be called `test/google/api`
