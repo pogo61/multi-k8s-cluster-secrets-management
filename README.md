@@ -6,7 +6,7 @@ and have them replicated to the Slave Vault instances in those environments.
 
 This will allow Devs to define their own secrets as needed, and not rely on DevOps to implement them in the different K8s environments.
 
-##<ins>Architecture</ins>
+<h2><ins>Architecture</ins></h2>
    ![pic](Secrets%20Management%20Replication.png)
    
 As you can see, all secrets are defined , per environment, in the master Vault, and the replicator
@@ -15,9 +15,12 @@ uses a config file to determine what secrets are to be replicated to what slave.
 <ins>Note</ins>, Slaves do not have K8s Ingresses. Therefore, only Pods in the Cluster can access them. Further increasing security. 
 Access to them, outside the Cluster is via *Kubectl port-forward* by default.
 
+<ins>Note</ins>, Slaves are defined to use Hashicorp Vault `Kubernetes Authentication`. See [hashicorp](https://www.vaultproject.io/docs/auth/kubernetes), or [more detail from OpenShift](https://www.openshift.com/blog/vault-integration-using-kubernetes-authentication-method)
+ 
+
 <ins>Note</ins>, this repo assumes that you have already implemented your "Master Vault". 
 
-##<ins>Creating a Slave Vault</ins>
+<h2><ins>Creating a Slave Vault</ins></h2>
 Creating a slave instance is driven by the *define_vault.sh* script. You can run this in the command line, or in your pipeline of choice.
 
 This script takes three parameters:
@@ -31,7 +34,7 @@ This is obviously for a dev environment, with a dev instance of Vault running as
 
 <ins>Note</ins>, the access details for the newly created Vault slave are kept in /secret/vault/`environment` where 'environment' is the same ast the vault of the **Environment** input variable  
 
-##<ins>Replicator</ins>
+<h2><ins>Replicator</ins></h2>
 Let's assume you want to create a secret for an API token, and you need to use it in Test, UAT, and production:
 1. login in to `your base vault instance` and create a secret called `dev/google/api` and call the field `token`, 
 and it's value the value of the token you need in preview 
@@ -65,4 +68,8 @@ Running the replicator is driven by the *replicate.sh* script. You can run this 
 This script takes three parameters:
 *   **Environment:**    This is the name given to the kubernetes context, or environment, that is the target vault.
 
-##<ins>Accessing the Secrets in the Environments</ins>
+<h2><ins>Accessing the Secrets in the Environments</ins></h2>
+Because of the complications introduced by the much more Kubernetes Auth method, and just to decouple the need to know anything about where the secrets reside in the cluster,
+there are a TypeScript amd GoLang Slave wrapper libraries supplied in the /src/client directories.
+
+How to use them, and to run local tests, are decribed in the following README's: [Golang](https://github.com/pogo61/multi-k8s-cluster-secrets-management/blob/master/src/client/GoLang/README.md), and [TypeScript](https://github.com/pogo61/multi-k8s-cluster-secrets-management/blob/master/src/client/typescript/README.md)
