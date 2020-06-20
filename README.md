@@ -37,18 +37,18 @@ This is obviously for a dev environment, with a dev instance of Vault running as
 
 <h2><ins>Replicator</ins></h2>
 Let's assume you want to create a secret for an API token, and you need to use it in Test, UAT, and production:
-1. login in to `your base vault instance` and create a secret called `dev/google/api` and call the field `token`, 
+1. login in to your `Master vault instance` and create a secret called `env/dev/google/api` under the **Secrets** root, and call the field `token`, 
 and it's value the value of the token you need in the UAT environment 
 (assuming it is different to the values in the other environments). It should look like:
 
-2. Do the same for the secret and value you want in Test, except this secret will be called `test/google/api`
-3. Do the same for the secret and value you want in Production, except this secret will be called `production/google/api`
+2. Do the same for the secret and value you want in Test, except this secret will be called `env/test/google/api`
+3. Do the same for the secret and value you want in Production, except this secret will be called `env/production/google/api`
 
 That's it!
 
-The vault-replicator pipeline runs regularly and copies all secrets under /secret/preview to the preview Vault instance.
+The vault-replicator pipeline runs regularly and copies all secrets under /secret/env/dev to the Dev Vault instance.
 
-This is the same for /secret/test and /secret/production. 
+This is the same for /secret/env/test and /secret/env/production. 
 
 In the above example the secret in is called `/google/api` in all the environments
 
@@ -62,6 +62,8 @@ Every task in the pipeline will use a configuration like this above. This is loo
  a kubectl port-forward. However the `k8s` value of true forces the replicator to use port-forwarding
 * The `env` value points the replicator at the target vault instance
 * The `kubectx` value is important as it allows the replicator to use the address and credentials to port-forward to the pod in the cluster
+
+<ins>Note</ins>, a future modification could include adding the Master secret root to the config, instead of it currently being hard coded as `Secrets/env`. 
 
 #### Running the Replicator
 Running the replicator is driven by the *replicate.sh* script. You can run this in the command line, or in your pipeline of choice.
