@@ -37,7 +37,7 @@ This is obviously for a dev environment, with a dev instance of Vault running as
 
 <h2><ins>Replicator</ins></h2>
 Let's assume you want to create a secret for an API token, and you need to use it in Test, UAT, and production:
-1. login in to your `Master vault instance` and create a secret called `env/dev/google/api` under the **Secrets** root, and call the field `token`, 
+1. login in to your `Master vault instance` and create a secret called `env/dev/google/api` under the <strong>Secrets</strong> root, and call the field `token`, 
 and it's value the value of the token you need in the UAT environment 
 (assuming it is different to the values in the other environments). It should look like:
 
