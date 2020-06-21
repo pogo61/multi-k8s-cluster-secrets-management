@@ -22,6 +22,7 @@ Access to them, outside the Cluster is via *Kubectl port-forward* by default.
 <ins>Note</ins>, this repo assumes that you have already implemented your "Master Vault". 
 
 <h2><ins>Creating a Slave Vault</ins></h2>
+
 Creating a slave instance is driven by the `define_vault.sh` script. You can run this in the command line, or in your pipeline of choice.
 
 This script takes three parameters:
