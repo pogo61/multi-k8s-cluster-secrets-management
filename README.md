@@ -22,7 +22,7 @@ Access to them, outside the Cluster is via *Kubectl port-forward* by default.
 <ins>Note</ins>, this repo assumes that you have already implemented your "Master Vault". 
 
 <h2><ins>Creating a Slave Vault</ins></h2>
-Creating a slave instance is driven by the *define_vault.sh* script. You can run this in the command line, or in your pipeline of choice.
+Creating a slave instance is driven by the `define_vault.sh` script. You can run this in the command line, or in your pipeline of choice.
 
 This script takes three parameters:
 *   **Environment:**    This is the name given to the kubernetes context, or environment, you want the Vault instance to be deployed to.
@@ -36,6 +36,7 @@ This is obviously for a dev environment, with a dev instance of Vault running as
 <ins>Note</ins>, the access details for the newly created Vault slave are kept in /secret/vault/`environment` of the Master Vault, where 'environment' is the same ast the vault of the **Environment** input variable  
 
 <h2><ins>Replicator</ins></h2>
+
 Let's assume you want to create a secret for an API token, and you need to use it in Test, UAT, and production:
 1. login in to your `Master vault instance` and create a secret called `env/dev/google/api` under the <strong>Secrets</strong> root, and call the field `token`, 
 and it's value the value of the token you need in the UAT environment 
