@@ -14,7 +14,7 @@ As you can see, all secrets are defined , per environment, in the master Vault, 
 uses a config file to determine what secrets are to be replicated to what slave.
 
 <ins>Note</ins>, Slaves do not have K8s Ingresses. Therefore, only Pods in the Cluster can access them. Further increasing security. 
-Access to them, outside the Cluster is via *Kubectl port-forward* by default.
+Access to them outside the Cluster is via *Kubectl port-forward* by default.
 
 <ins>Note</ins>, Slaves are defined to use Hashicorp Vault `Kubernetes Authentication`. See [hashicorp](https://www.vaultproject.io/docs/auth/kubernetes), or [more detail from OpenShift](https://www.openshift.com/blog/vault-integration-using-kubernetes-authentication-method)
  

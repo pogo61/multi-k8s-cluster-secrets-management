@@ -1,1 +1,2 @@
 theme: jekyll-theme-merlot
+exclude: ['./src/client/typescript/node_modules/balanced-match/README.md']
