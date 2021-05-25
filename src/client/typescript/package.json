@@ -13,9 +13,9 @@
   "dependencies": {
     "@kubernetes/client-node": "^0.13.0",
     "js-base64": "^2.5.1",
-    "lodash": "^4.17.19",
+    "lodash": "~>4.17.21",
     "node-vault": "^0.9.13",
-    "jose": "~> 2.0.5"
+    "jose": "~>2.0.5"
   },
   "devDependencies": {
     "@types/node": "^13.1.8",
