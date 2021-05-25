@@ -29,3 +29,12 @@ override.tf.json
 # example: *tfplan*
 
 /.idea/
+/src/client/typescript/node_modules/
+/helm/vault/config.hcl
+/src/replicator/config.yaml--
+/src/replicator/go.sum
+/src/client/typescript/npm-debug.log
+/npm-debug.log
+/src/client/typescript/package-lock.json
+/helm/consul/values.yaml
+/helm/vault/values.yaml
