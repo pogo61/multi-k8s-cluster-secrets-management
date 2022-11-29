@@ -37,8 +37,8 @@ echo "K8S_TOKEN is ${K8S_TOKEN}"
 
 vault write auth/kubernetes/config \
   kubernetes_host="${K8S_HOST}" \
-  kubernetes_ca_cert="${K8S_CACERT}" \
-  token_reviewer_jwt="${K8S_TOKEN}"
+  kubernetes_ca_cert="${K8S_CACERT}"
+#  token_reviewer_jwt="${K8S_TOKEN}"
 
 #PORT_PROCESS_ID="$(ps aux | grep 9200:8200 | sed -n 2p | awk '{ print $2 }')"
 #kill -9 "${PORT_PROCESS_ID}"

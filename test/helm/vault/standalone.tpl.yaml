@@ -8,14 +8,14 @@ server:
   # use development mode
   dev:
     enabled: true
-    config: |
-      ui = true
-      api_addr = "http://POD_IP:8200"
-  
-      listener "tcp" {
-        tls_disable = 1
-        address     = "0.0.0.0:8200"
-      }
+#    config: |
+#      ui = true
+#      api_addr = "http://POD_IP:8200"
+#
+#      listener "tcp" {
+#        tls_disable = 1
+#        address     = "0.0.0.0:8200"
+#      }
 
   service:
     enable: true
@@ -25,16 +25,16 @@ server:
 
   # Ingress allows ingress services to be created to allow external access
   # from Kubernetes to access Vault pods.
-  ingress:
-    enabled: true
-    labels:
-#    traffic: "external"
-    use-proxy-protocol: "false"
-    hosts:
-      - host: vault-test.local
-    annotations:
-      nginx.ingress.kubernetes.io/ssl-redirect: "false"
-      nginx.ingress.kubernetes.io/rewrite-target: /$1
+#  ingress:
+#    enabled: true
+#    labels:
+##    traffic: "external"
+#    use-proxy-protocol: "false"
+#    hosts:
+#      - host: vault-test.local
+#    annotations:
+#      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+#      nginx.ingress.kubernetes.io/rewrite-target: /$1
     ## Extra paths to prepend to the host configuration. This is useful when working with annotation based services.
 #    extraPaths:
 #     - path: /*

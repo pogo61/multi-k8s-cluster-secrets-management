@@ -12,7 +12,7 @@ VAULT_PODNAME=$(kubectl get pods -n $(namespace) -l app=vault -o jsonpath='{.ite
 
 sleep 1
 
-vault_save="$VAULT_ADDR"
+#vault_save="$VAULT_ADDR"
 #export VAULT_TOKEN=$(vault kv get -field=root_token secret/vault/"${1}")
 export VAULT_TOKEN="root"
 export VAULT_ADDR="http://localhost:8200"
@@ -293,4 +293,4 @@ vault write auth/kubernetes/role/infra-dev-role \
 #PORT_PROCESS_ID="$(ps aux | grep 9200:8200 | sed -n 2p | awk '{ print $2 }')"
 #kill -9 "${PORT_PROCESS_ID}"
 
-export VAULT_ADDR="$vault_save"
+#export VAULT_ADDR="$vault_save"
