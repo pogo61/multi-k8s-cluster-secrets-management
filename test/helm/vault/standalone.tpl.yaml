@@ -1,0 +1,82 @@
+# @format
+
+injector:
+  # True if you want to enable vault agent injection.
+  enabled: true
+
+server:
+  # use development mode
+  dev:
+    enabled: true
+    config: |
+      ui = true
+      api_addr = "http://POD_IP:8200"
+  
+      listener "tcp" {
+        tls_disable = 1
+        address     = "0.0.0.0:8200"
+      }
+
+  service:
+    enable: true
+    type: LoadBalancer
+#    externalTrafficPolicy: Local
+#    nodePort: 30400
+
+  # Ingress allows ingress services to be created to allow external access
+  # from Kubernetes to access Vault pods.
+  ingress:
+    enabled: true
+    labels:
+#    traffic: "external"
+    use-proxy-protocol: "false"
+    hosts:
+      - host: vault-test.local
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+    ## Extra paths to prepend to the host configuration. This is useful when working with annotation based services.
+#    extraPaths:
+#     - path: /*
+#       pathType: Prefix
+#       backend:
+#         service:
+#          name: vault-ui
+#          port:
+#            number: 8200
+
+
+#  # Used to enable a livenessProbe for the pods
+#  livenessProbe:
+#    enabled: true
+#    path: "/v1/sys/health?standbyok=true&uninitcode=200&sealedcode=200"
+#    initialDelaySeconds: 60
+
+  # Extra labels to attach to the server pods
+  # This should be a multi-line string mapping directly to the a map of
+  # the labels to apply to the server pods
+  extraLabels: { app: vault }
+
+  # Used to set the sleep time during the preStop step
+  preStopSleepSeconds: 5
+
+#  # Run Vault in "standalone" mode. This is the default mode that will deploy if
+#  # no arguments are given to helm. This requires a PVC for data storage to use
+#  # the "file" backend.  This mode is not highly available and should not be scaled
+#  # past a single replica.
+#  standalone:
+#    enabled: false
+
+# Vault UI
+ui:
+  # True if you want to create a Service entry for the Vault UI.
+  #
+  # serviceType can be used to control the type of service created. For
+  # example, setting this to "LoadBalancer" will create an external load
+  # balancer (for supported K8S installations) to access the UI.
+  enabled: true
+  serviceType: "LoadBalancer"
+#  serviceNodePort: 30033
+  externalPort: 8200
+#  externalTrafficPolicy: Local
+  service: "vault-ui"
