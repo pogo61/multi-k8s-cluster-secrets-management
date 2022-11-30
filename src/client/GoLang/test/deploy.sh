@@ -1,8 +1,7 @@
 #!/bin/bash -
 
 # create a test secret
-#vault kv put secret/exampleapp/config \
-#  token="${vault_root}"
+echo "abcd1234" | vault kv put -mount=secret test/data token=-
 
 # define the service account that will be authorised to access Vault
 vault write auth/kubernetes/role/cf-test \

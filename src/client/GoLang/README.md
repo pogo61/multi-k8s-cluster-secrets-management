@@ -63,11 +63,10 @@ The steps to run and test both the configfactory wrapper, and the Vault Slave th
 e.g.   `docker build . -t paulpog/config_factory:latest`
 3. push the image to the requisite docker repo that you have logged into.  
 e.g. `docker push paulpog/config_factory:latest`
-4. start the kubctl port forwarding to the K8s cluster supporting the Vault Slave. Remember the Slave will run in the 'vault' namespace.  
-e.g. ` kubectl port-forward "vault-0" 9200:8200 -n vault`
+4. Set the VAULT_ADDR env var to http://localhost:8200. this is to use http instean of HTTPS that isn't set
 5. login to the Vault Slave using the Slave's root token stored in /secret/vault/`environment` of the Master Vault  
 e.g. `vault login token=<root.token>` 
-6. define the K8s RBAC Role and RoleBinding to the K8s cluster supporting the Vault  
+6. tes that the RBAC is defined by using the following K8s RBAC Role and RoleBinding to the K8s cluster supporting the Vault  
 e.g. ` kubectl apply -f test/role.yaml` and  `kubectl apply -f test/roleBinding.yaml`
 7. edit the deployment.yaml file and point to the image created in step 3.
 8. run the test app `test/deploy.sh`

@@ -1,7 +1,7 @@
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: cf-test-rolebinding
+  name: cf-test
   namespace: default
   labels:
     app: cf-test
@@ -12,5 +12,5 @@ subjects:
     namespace: default
 roleRef:
   kind: Role
-  name: cf-test-role
+  name: cf-test
   apiGroup: rbac.authorization.k8s.io

@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"github.com/pogo61/multi-k8s-cluster-secrets-management/src/client/GoLang/configfactory"
 	"log"
+	"strconv"
 )
 
 func main() {
 	log.Print("starting test")
 	var vaultVars = make(map[string]string)
-	vaultVars["/secret/google/api|token"] = "api-token"
+	vaultVars["/secret/test/data|token"] = "api-token"
 
 	for i := 1; i < 5; i++ {
 		confVars, err := configfactory.CreateVars(vaultVars)
@@ -18,7 +19,7 @@ func main() {
 		}
 
 		if confVars != nil {
-			//log.Print("number of returned secrets is "+strconv.Itoa(len(confVars)))
+			log.Print("number of returned secrets is " + strconv.Itoa(len(confVars)))
 			for key, value := range confVars {
 				fmt.Println("key is: " + key + " value is: " + value)
 			}
