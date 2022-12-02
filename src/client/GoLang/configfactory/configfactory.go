@@ -76,6 +76,7 @@ func CreateVars(vaultValues map[string]string) (map[string]string, error) {
 		var temp = splitKey[0]
 		var secret = strings.Replace(temp, "/secret", "/secret/data", 1)
 		var reqField = splitKey[1]
+		log.Print("secret is: " + string(secret))
 
 		c := authClient.Logical()
 		secretValues, err := c.Read(secret)
@@ -169,6 +170,7 @@ func login() (string, error) {
 	jsonValue, _ := json.Marshal(values)
 
 	// login to Vault
+	log.Print("Vault IP is: " + string(IP))
 	resp, err := http.Post("http://"+IP+":8200/v1/auth/kubernetes/login", "application/json", bytes.NewBuffer(jsonValue))
 	if err != nil {
 		panic(err.Error())

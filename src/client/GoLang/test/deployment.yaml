@@ -17,7 +17,7 @@ spec:
         app: cf-test
     spec:
       serviceAccountName: vault-acl
-      securityContext:
+#      securityContext:
       containers:
         - name: app
           image: paulpog/config_factory:latest
