@@ -12,4 +12,4 @@ rules:
     resources: ["secrets"]
     resourceNames:
       - vault-tokens
-    verbs: ["get"]
+    verbs: ["get","list","watch"]

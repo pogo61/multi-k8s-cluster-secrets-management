@@ -23,10 +23,10 @@ if [[ "${1}" != "minikube" ]]
 then
   vault secrets enable -version=2 -path=secret/ kv
 else
-  vault operator unseal
+#  vault operator unseal
   vault secrets disable secret/
   vault secrets enable -version=2 -path=secret/ kv
-  unset unseal_key
+#  unset unseal_key
 fi
 
 #echo ps aux | grep kubectl

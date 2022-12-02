@@ -76,6 +76,7 @@ func CreateVars(vaultValues map[string]string) (map[string]string, error) {
 		var temp = splitKey[0]
 		var secret = strings.Replace(temp, "/secret", "/secret/data", 1)
 		var reqField = splitKey[1]
+		log.Print("secret is: " + string(secret))
 
 		c := authClient.Logical()
 		secretValues, err := c.Read(secret)
@@ -167,7 +168,6 @@ func login() (string, error) {
 	// creat the login JSON payload
 	values := map[string]string{"jwt": string(jwt), "role": "cf-test"}
 	jsonValue, _ := json.Marshal(values)
-	log.Print("Auth JSON is: " + string(jsonValue))
 
 	// login to Vault
 	log.Print("Vault IP is: " + string(IP))

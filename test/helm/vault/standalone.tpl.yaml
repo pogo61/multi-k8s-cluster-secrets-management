@@ -1,8 +1,8 @@
 # @format
 
-injector:
-  # True if you want to enable vault agent injection.
-  enabled: false
+#injector:
+#  # True if you want to enable vault agent injection.
+#  enabled: false
 
 server:
   # use development mode

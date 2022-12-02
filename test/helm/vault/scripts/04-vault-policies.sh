@@ -16,6 +16,8 @@ sleep 1
 #export VAULT_TOKEN=$(vault kv get -field=root_token secret/vault/"${1}")
 export VAULT_TOKEN="root"
 export VAULT_ADDR="http://localhost:8200"
+# change this from minikube to kubernetes if running on anyting other than minikube
+export CLUSTER_NAME="kubernetes"
 
 
 vault policy write runtime_vault-kv - <<EOH
@@ -28,9 +30,12 @@ vault policy write runtime_vault-auth - <<EOH
 path "auth/*" {
   capabilities = ["create", "read", "update", "delete", "list", "sudo"]
 }
+path "auth/token/lookup-self" {
+  capabilities = ["read"]
+}
 EOH
 
-vault write auth/kubernetes/role/runtime_vault-role \
+vault write auth/$CLUSTER_NAME/role/runtime_vault-role \
   bound_service_account_names="vault-acl" \
   bound_service_account_namespaces="default" \
   policies="runtime_vault-kv,runtime_vault-auth" \
@@ -235,7 +240,7 @@ path "sys/capabilities-accessor" {
 }
 EOH
 
-vault write auth/kubernetes/role/admin-role \
+vault write auth/$CLUSTER_NAME/role/admin-role \
   bound_service_account_names="default" \
   bound_service_account_namespaces="default" \
   policies="default,admin-auth,admin-sys-auth,admin-sys-policy,admin-sys-policy-all,admin-sys-policy-acl,admin-entity,\
@@ -283,7 +288,7 @@ path "aws/creds/k8s-cluster" {
 }
 EOH
 
-vault write auth/kubernetes/role/infra-dev-role \
+vault write auth/$CLUSTER_NAME/role/infra-dev-role \
   bound_service_account_names="default" \
   bound_service_account_namespaces="default" \
   policies="infra-dev-auth-token-create,infra-dev-secret-data-iam,infra-dev-secret-data-zerotier-toolbox-all,\
