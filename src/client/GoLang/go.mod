@@ -5,7 +5,6 @@ go 1.14
 require (
 	github.com/hashicorp/go-rootcerts v1.0.2 // indirect
 	github.com/hashicorp/vault/api v1.0.4
-	k8s.io/apimachinery v0.17.3
-	k8s.io/client-go v0.17.3
-	k8s.io/utils v0.0.0-20200603063816-c1c6865ac451 // indirect
+	k8s.io/apimachinery v0.20.0
+	k8s.io/client-go v0.20.0
 )
