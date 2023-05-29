@@ -16,7 +16,7 @@
     "lodash": "~>4.17.21",
     "node-vault": "^0.9.13",
     "jose": "~>2.0.6",
-    "underscore": "^1.12.1"
+    "underscore": "^1.13.6"
   },
   "devDependencies": {
     "@types/node": "^13.1.8",
