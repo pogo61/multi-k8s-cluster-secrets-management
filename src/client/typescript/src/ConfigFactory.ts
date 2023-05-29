@@ -1,6 +1,4 @@
 import fs from 'fs';
-import { Base64 } from 'js-base64';
-import {Cluster} from "@kubernetes/client-node/dist/config_types";
 
 export class ConfigFactory {
     url: string;
