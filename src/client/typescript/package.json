@@ -15,7 +15,7 @@
     "jose": "~>2.0.6",
     "js-base64": "^2.5.1",
     "lodash": "~>4.17.21",
-    "node-vault": "^0.5.10",
+    "node-vault": "0.10.2",
     "underscore": "^1.13.6",
     "tough-cookie": "^4.1.3"
   },
